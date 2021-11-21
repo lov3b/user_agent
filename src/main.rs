@@ -1,5 +1,5 @@
 use reqwest;
-use std::env;
+use std::{env, process};
 
 fn main() {
     let help = "Options:
@@ -7,15 +7,16 @@ fn main() {
         --win for Win64 
         --wow for WOW64 
         --webkit for AppleWebKit
+        -h or --help prints this help
 
-        There must be one argument,and one only";
+        There must be one argument, and one only";
     // Argument handeling
     let args: Vec<String> = env::args().collect();
     let param = &match args.get(1) {
         Some(ok) => ok,
         None => {
             println!("{}", help);
-            std::process::exit(0);
+            process::exit(1);
         }
     };
     let conf: Conf = match param.as_str() {
@@ -23,9 +24,13 @@ fn main() {
         "--win" => Conf::Win,
         "--wow" => Conf::Wow,
         "--webkit" => Conf::Webkit,
+        "-h" | "--help" => {
+            println!("{}", &help);
+            process::exit(0);
+        }
         _ => {
             println!("{}", &help);
-            std::process::exit(0);
+            process::exit(1);
         }
     };
 
@@ -39,7 +44,8 @@ fn main() {
 
     let mut user_agents: Vec<String> = Vec::new();
 
-    // Get useragent from html
+    let mut blocked: bool = true;
+    // Gif et useragent from html
     for i in resp.lines() {
         if i.contains("Windows NT 10.0") {
             let i = &i
@@ -48,7 +54,18 @@ fn main() {
                 .trim()
                 .to_string();
             user_agents.push(i.to_owned());
+            blocked = false;
         }
+    }
+
+    if blocked {
+        std::fs::write("latest-chrome.html", &resp).unwrap();
+        println!(
+            "It looks like your IP has been blocked. 
+They will most likly remove this block in a couple of days.
+I will now dump the html to \"latest-chrome.html\" for you convenience"
+        );
+        process::exit(1);
     }
 
     // Do as the user wishes
@@ -69,6 +86,7 @@ fn main() {
         }
     }
 }
+
 enum Conf {
     All,
     Win,
