@@ -2,6 +2,8 @@ use reqwest;
 use std::env;
 
 fn main() {
+    let help = "Options for this program:\n-a or --all for all \n--win for Win64 \n--wow for WOW64 \n--webkit for AppleWebKit";
+
     let resp = reqwest::blocking::get(
         "https://www.whatismybrowser.com/guides/the-latest-user-agent/chrome",
     )
@@ -10,6 +12,7 @@ fn main() {
     .unwrap();
 
     let mut user_agents: Vec<String> = Vec::new();
+    // Get useragent from html
     for i in resp.lines() {
         if i.contains("Windows NT 10.0") {
             let i = &i
@@ -26,14 +29,12 @@ fn main() {
     let param = &match args.get(1) {
         Some(ok) => ok,
         None => {
-            println!(
-        "Options for this program:\n-a or --all for all \n--win for Win64 \n--wow for WOW64 \n--webkit for AppleWebKit"
-        );
+            println!("{}", help);
             std::process::exit(0);
         }
     };
 
-    // Print all
+    // Handle argument given
     match param.as_str() {
         "-a" => {
             for i in 0..user_agents.len() {
@@ -56,7 +57,7 @@ fn main() {
             println!("{}", user_agents[2]);
         }
         _ => {
-            println!("Options for this program:\n-a or --all for all \n--win for Win64 \n--wow for WOW64 \n--webkit for AppleWebKit")
+            println!("{}", &help);
         }
     }
 }
