@@ -36,17 +36,11 @@ fn main() {
 
     // Handle argument given
     match param.as_str() {
-        "-a" => {
+        "-a" | "--all" => {
             for i in 0..user_agents.len() {
                 println!("{}", user_agents[i]);
             }
         }
-        "--all" => {
-            for i in 0..user_agents.len() {
-                println!("{}", user_agents[i]);
-            }
-        }
-
         "--win" => {
             println!("{}", user_agents[0]);
         }
